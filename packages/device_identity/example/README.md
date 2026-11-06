@@ -21,8 +21,10 @@ Kullanıcının onayıyla ayrı bir `lib/main_preview.dart` girişi eklenmiştir
 Normal `flutter run` ve Android APK'sı hâlâ `lib/main.dart` kullanır; native
 pakete sahte veri veya web desteği eklenmez.
 
-Tarayıcı simülasyonu gerçek `DevicePage` ekranını ayrı bir örnek transport ile
-çalıştırır. Gerçek Android emülatörü değildir ve OS izin / modem davranışını
+Senaryo seçimi, sıfırlama ve sonuç ekranı dahil web arayüzü Flutter/Dart'tır;
+React/TypeScript sarmalayıcı veya iframe yoktur. Tarayıcı simülasyonu gerçek
+`DevicePage` ekranını ayrı bir örnek transport ile çalıştırır.
+Gerçek Android emülatörü değildir ve OS izin / modem davranışını
 doğrulamaz. Bütün veriler örnektir; IMEI yerine açıkça `DEMO-IMEI` metni gösterilir.
 
 Replit'te **Cihaz Bilgisi — Etiketli Simülasyon** önizlemesinde dört senaryo:

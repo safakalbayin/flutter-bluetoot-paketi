@@ -10,6 +10,8 @@ Android-first Flutter BLE plugin with Kotlin Platform Channels and a consuming F
 - No automatic IMEI reads, logs, persistence or uploads. The example reads IMEI only after an explicit user action.
 - The user explicitly approved a labelled browser simulation instead of a real emulator. Keep its entry and fake transport separate from Android builds, with persistent simulation labels and nonnumeric DEMO identifiers.
 - **Why:** Preview data must never be mistaken for actual device information or a validated hardware IMEI result.
+- The user requested Dart for the device identity web UI. Keep its scenario controls and device view in Flutter/Dart, not a React/TypeScript wrapper; retain Kotlin only for actual Android platform access.
+- **Why:** The user explicitly selected moving the web preview to Dart, not changing to a dark theme.
 
 ## Flutter package (primary product)
 
