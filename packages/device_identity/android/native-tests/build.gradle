@@ -1,0 +1,79 @@
+// SDK-free JVM harness. Compiles the real plugin, not a copy or a test double.
+plugins {
+    id "org.jetbrains.kotlin.jvm" version "2.1.0"
+}
+
+repositories {
+    google()
+    mavenCentral()
+}
+
+def flutterSdk = providers.gradleProperty("flutterSdk")
+    .orElse(providers.environmentVariable("FLUTTER_ROOT"))
+if (!flutterSdk.isPresent()) {
+    throw new GradleException("Set -PflutterSdk=<Flutter SDK directory> or FLUTTER_ROOT.")
+}
+def flutterJar = file("${flutterSdk.get()}/bin/cache/artifacts/engine/android-arm/flutter.jar")
+if (!flutterJar.exists()) {
+    throw new GradleException("Flutter Android embedding missing; run flutter precache --android.")
+}
+
+configurations {
+    androidTestAars
+}
+
+dependencies {
+    implementation files(flutterJar)
+    compileOnly "org.robolectric:android-all:15-robolectric-12650502"
+    testImplementation "junit:junit:4.13.2"
+    testImplementation "org.mockito:mockito-core:5.15.2"
+    testImplementation("org.robolectric:robolectric:4.14.1") {
+        exclude group: "androidx.test", module: "monitor"
+        exclude group: "androidx.test.espresso", module: "espresso-idling-resource"
+    }
+    // A JVM project cannot consume Android AARs directly.
+    androidTestAars("androidx.test:monitor:1.7.2@aar") { transitive = false }
+    androidTestAars("androidx.test.espresso:espresso-idling-resource:3.6.1@aar") {
+        transitive = false
+    }
+    testImplementation "org.robolectric:android-all:15-robolectric-12650502"
+}
+
+def unpackAars = tasks.register("unpackAndroidTestAars", Sync) {
+    from { configurations.androidTestAars.collect { zipTree(it) } }
+    include "**/*.jar"
+    into layout.buildDirectory.dir("android-test-jars")
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    eachFile { details ->
+        details.path = "${details.file.parentFile.name}-${details.name}"
+    }
+}
+
+kotlin {
+    jvmToolchain(21)
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11
+    }
+}
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
+sourceSets {
+    main.kotlin.srcDirs = ["../src/main/kotlin"]
+    test.kotlin.srcDirs = ["../src/test/kotlin"]
+}
+
+tasks.named("test") {
+    dependsOn unpackAars
+    classpath += files(unpackAars.map { fileTree(it.destinationDir).matching { include "**/*.jar" } })
+    useJUnit()
+    maxHeapSize = "2g"
+    systemProperty "robolectric.dependency.repo.url", "https://repo.maven.apache.org/maven2"
+    // No identifiers or native exception contents in console test output.
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = false
+        exceptionFormat = "short"
+    }
+}

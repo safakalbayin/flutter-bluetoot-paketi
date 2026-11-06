@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Blooted — Flutter Önizleme"
+description = "Blooted Flutter örnek uygulamasının web derlemesini gösterir. Android BLE donanım işlemleri tarayıcıda desteklenmez; gerçek cihaz testi yerine geçmez."
+version = "1.0.0"
+id = "artifacts/blooted-preview"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25825
+
+[services.development]
+run = "pnpm --filter @workspace/blooted-preview run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/blooted-preview", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/blooted-preview/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25825"
+BASE_PATH = "/"

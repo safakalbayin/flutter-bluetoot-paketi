@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/device-identity/"
+title = "Cihaz Bilgisi — Etiketli Simülasyon"
+description = "Gerçek Flutter cihaz bilgisi ekranını örnek verilerle gösteren, gerçek emülatör veya donanım testi olmayan etiketli senaryo önizlemesi."
+version = "1.0.0"
+id = "artifacts/device-identity-preview"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/device-identity/" ]
+localPort = 18427
+
+[services.development]
+run = "pnpm --filter @workspace/device-identity-preview run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/device-identity-preview", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/device-identity-preview/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18427"
+BASE_PATH = "/device-identity/"
